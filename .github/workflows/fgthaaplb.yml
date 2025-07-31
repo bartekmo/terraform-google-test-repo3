@@ -26,7 +26,9 @@ jobs:
       - name: Merge in fortinet/terraform-google-fgt-ha-ap-lb
         run: |
           ## If subtree already exists then update it, else add subtree
-          git log | grep git-subtree-dir | awk '{ print $2 }' | grep $SUBDIR_MODULE_HAAPLB && git subtree pull --prefix $SUBDIR_MODULE_HAAPLB https://github.com/fortinet/terraform-google-fgt-ha-ap-lb.git main || git subtree add --prefix $SUBDIR_MODULE_HAAPLB https://github.com/fortinet/terraform-google-fgt-ha-ap-lb.git main
+          # git log | grep git-subtree-dir | awk '{ print $2 }' | grep $SUBDIR_MODULE_HAAPLB && git subtree pull --prefix $SUBDIR_MODULE_HAAPLB https://github.com/fortinet/terraform-google-fgt-ha-ap-lb.git main || git subtree add --prefix $SUBDIR_MODULE_HAAPLB https://github.com/fortinet/terraform-google-fgt-ha-ap-lb.git main
+          # INIT: git subtree add --prefix $SUBDIR_MODULE_HAAPLB https://github.com/fortinet/terraform-google-fgt-ha-ap-lb.git main
+          git subtree pull --prefix $SUBDIR_MODULE_HAAPLB https://github.com/fortinet/terraform-google-fgt-ha-ap-lb.git main
 
           # git remote add fgt-ha-ap-lb https://github.com/fortinet/terraform-google-fgt-ha-ap-lb.git
           # git fetch fgt-ha-ap-lb
