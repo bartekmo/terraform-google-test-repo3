@@ -7,7 +7,7 @@ Autoscale FortiGate with Load Balancer Sandwich offers a dynamically scalable ne
 The "autoscale_fgt_lb_sandwich" Terraform project comprises an `Auto-Scale FortiGate Group`, two `VPCs`, an `External Load Balancer`, and an `Internal Load Balancer`. It uses `Google Cloud Function` and `Firestore Database` to designate a primary FortiGate and to manage license deployment across the FortiGates. It uses `Google Bucket Storage` to store cloud function code and license files.
 
 **Architecture Diagram:**
-![Diagram](./images/autoscale_fgt_lb_sandwich.svg)
+![Diagram](https://raw.githubusercontent.com/bartekmo/terraform-google-test-repo3/test/docs/./images/autoscale_fgt_lb_sandwich.svg)
 
 The `Auto-Scale FortiGate Group` consists of dynamically scalable FortiGates, including one primary FortiGate VM and potentially multiple secondary FortiGate VMs. Configurations are set on the primary FortiGate and automatically synchronized across all secondary FortiGates. If the primary FortiGate fail, the Google Cloud Function will promote the oldest secondary FortiGate to take its place.
 

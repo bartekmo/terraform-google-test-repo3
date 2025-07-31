@@ -16,7 +16,7 @@ The Google Cloud Functions is used by the `fgt_asg_with_function` module. Its sc
 
 
 ## Workflow
-![](./images/function_workflow.svg)
+![](https://raw.githubusercontent.com/bartekmo/terraform-google-test-repo3/test/docs/./images/function_workflow.svg)
 
 Google Cloud Functions is an event-driven computing service, typically triggered by the creation or deletion of FortiGate (FGT) instances.
 

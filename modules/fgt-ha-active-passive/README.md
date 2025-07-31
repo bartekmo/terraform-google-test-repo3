@@ -1,7 +1,7 @@
 # FortiGate Terraform module:
 ## HA Active-Passive cluster (FGCP in load balancer sandwich)
 
-![architecture diagram](./docs/diagram.png)
+![architecture diagram](https://raw.githubusercontent.com/bartekmo/terraform-google-test-repo3/test/modules/fgt-ha-active-passive/./docs/diagram.png)
 
 This terraform module can be used to deploy the base part of FortiGate reference architecture consisting of:
 - 2 FortiGate VM instances - preconfigured in FGCP Active-Passive cluster
@@ -23,7 +23,7 @@ We assume you have a working root module with proper Google provider configurati
 1. Create a `module` block and reference this module in your code (eg. main.tf) to use it, eg.:
     ```
     module "fgt-ha" {  
-      source = "git::github.com/fortinet/terraform-google-fgt-ha-ap-lb"  
+      source = "bartekmo/test-repo3/google//modules/fgt-ha-active-passive"  
     }
     ```
 1. In the above module block provide the variables described in `variables.tf`. Only 2 variables are obligatory:

@@ -19,7 +19,7 @@ To indicate family name pass it to the module as `family_name` variable. Eg.:
 
 ```
 module fgt_ha {
-  source        = "git::github.com/fortinet/terraform-google-fgt-ha-ap-lb"
+  source        = "bartekmo/test-repo3/google//modules/fgt-ha-active-passive"
 
   region        = "us-central1"
   subnets       = [ "external", "internal", "hasync", "mgmt" ]
@@ -42,7 +42,7 @@ and provide desired image name as `image_name` module variable. Eg.:
 
 ```
 module fgt_ha {
-  source        = "git::github.com/fortinet/terraform-google-fgt-ha-ap-lb"
+  source        = "bartekmo/test-repo3/google//modules/fgt-ha-active-passive"
 
   region        = "us-central1"
   subnets       = [ "external", "internal", "hasync", "mgmt" ]
@@ -55,7 +55,7 @@ If your deployment is using custom images, either derived from public ones or ru
 
 ```
 module fgt_ha {
-  source        = "git::github.com/fortinet/terraform-google-fgt-ha-ap-lb"
+  source        = "bartekmo/test-repo3/google//modules/fgt-ha-active-passive"
 
   region        = "us-central1"
   subnets       = [ "external", "internal", "hasync", "mgmt" ]
@@ -68,7 +68,7 @@ module fgt_ha {
 
 ```
 module fgt_ha {
-  source        = "git::github.com/fortinet/terraform-google-fgt-ha-ap-lb"
+  source        = "bartekmo/test-repo3/google//modules/fgt-ha-active-passive"
 
   region        = "us-central1"
   subnets       = [ "external", "internal", "hasync", "mgmt" ]
