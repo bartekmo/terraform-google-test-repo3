@@ -1,0 +1,104 @@
+name: Automate - pull fgt-ha-ap-lb and update links
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to run the workflow on'
+        required: true
+        default: 'merged'
+env:
+  SUBDIR_MODULE_HAAPLB: "modules/fgt-ha-active-passive"
+
+jobs:
+  sync-and-clean:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout base repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Merge in fortinet/terraform-google-fgt-ha-ap-lb
+        run: |
+          ## If subtree already exists then update it, else add subtree
+          git log | grep git-subtree-dir | awk '{ print $2 }' | grep $SUBDIR_MODULE_HAAPLB && git subtree pull --prefix $SUBDIR_MODULE_HAAPLB https://github.com/fortinet/terraform-google-fgt-ha-ap-lb.git main || git subtree add --prefix $SUBDIR_MODULE_HAAPLB https://github.com/fortinet/terraform-google-fgt-ha-ap-lb.git main
+
+          # git remote add fgt-ha-ap-lb https://github.com/fortinet/terraform-google-fgt-ha-ap-lb.git
+          # git fetch fgt-ha-ap-lb
+          # git read-tree --prefix=$SUBDIR_MODULE_HAAPLB -u fgt-ha-ap-lb/main
+
+      - name: Find markdown files and convert URLs in images
+        id: convert-images
+        run: |
+          REPO_OWNER="${{ github.repository_owner }}"
+          REPO_NAME="${{ github.event.repository.name }}"
+          BRANCH_NAME="${{ github.event.inputs.branch }}"
+          COMMIT_HASH="${{ github.sha }}"
+          BASE_URL="https://raw.githubusercontent.com/$REPO_OWNER/$REPO_NAME/$BRANCH_NAME"
+          
+          # Loop through all markdown files in the repository
+          # and convert relative image paths.
+          # The regex matches images in markdown files: ![alt text](relative/path/to/image.png)
+          find . -name "*.md" -type f -print0 | while IFS= read -r -d $'\0' file; do
+            # Use sed to find image tags and replace relative URLs
+            # absolute to full url
+            sed -i "s#\(\!\[.*\]\)(\(/[[:alnum:] \./_-]*\))#\1(${BASE_URL}\2)#g" $file
+            # relative to full url
+            CWD=`echo $file | sed "s|\.\(.*\)/[[:alnum:]\._ ]*|\1/|"`
+            sed -i "s#\(\!\[.*\]\)(\([[:alnum:]\._][[:alnum:] \./_-]*\))#\1(${BASE_URL}${CWD}\2)#g" $file
+          done
+          
+      - name: Find and convert source values in code examples of imported fgt-ha-ap-lb
+        id: convert-module-source
+        run: |
+          REPO_OWNER="${{ github.repository_owner }}"
+          REPO_NAME="${{ github.event.repository.name }}"
+          TF_REPO_NAME=`echo $REPO_NAME | cut -c 18-`
+          BRANCH_NAME="${{ github.event.inputs.branch }}"
+          MODULE_TF_SRC="$REPO_OWNER/$TF_REPO_NAME/google//$SUBDIR_MODULE_HAAPLB"
+
+          # Loop through all markdown and terraform files in the module
+          # and swap source addresses from git to tf registry.
+          
+          find $SUBDIR_MODULE_HAAPLB -type f \( -name "*.md" -o -name "*.tf" \) -print0 | while IFS= read -r -d $'\0' file; do
+            # Use sed to find image tags and replace relative URLs
+            # absolute to full url
+            sed -i "s#git::github.com/fortinet/terraform-google-fgt-ha-ap-lb#$MODULE_TF_SRC#g" $file
+          done
+
+      - name: Move examples to global directory
+        id: fgthaaplb-mv-examples
+        run: |
+          for DIR in $SUBDIR_MODULE_HAAPLB/examples/*; do
+            DIRNAME=`echo $DIR | sed "s|.*/\(.*\)|\1|"`
+            git mv $DIR examples/fgt-ha-ap-$DIRNAME
+          done
+          rmdir $SUBDIR_MODULE_HAAPLB/examples
+
+      - name: Move fgt-image to global modules and make it internal
+        id: fgthaaplb-mv-fgt-image-get
+        run: |
+          ls $SUBDIR_MODULE_HAAPLB/modules/fgt-get-image && git mv $SUBDIR_MODULE_HAAPLB/modules/fgt-get-image modules/ || echo "fgt-get-image not found"
+          ls modules/fgt-get-image/README.md && git mv modules/fgt-get-image/README.md modules/fgt-get-image/INFO.md || echo "fgt-get-image/README.md not found"
+          rmdir $SUBDIR_MODULE_HAAPLB/modules
+
+      - name: Check for changes
+        id: git-status
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changes_detected=true" >> $GITHUB_OUTPUT
+            echo "Changes detected"
+          else
+            echo "changes_detected=false" >> $GITHUB_OUTPUT
+            echo "No changes"
+          fi
+
+      - name: PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          base: ${{ github.event.inputs.branch }}
