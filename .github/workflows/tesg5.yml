@@ -1,0 +1,33 @@
+name: fgt-ha-ap-lb pull only
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to run the workflow on'
+        required: true
+        default: 'test5'
+env:
+  SUBDIR_MODULE_HAAPLB: "modules/fgt-ha-active-passive"
+
+jobs:
+  pull-remote:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout base repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Merge in fortinet/terraform-google-fgt-ha-ap-lb
+        run: |
+          git subtree pull --prefix $SUBDIR_MODULE_HAAPLB https://github.com/fortinet/terraform-google-fgt-ha-ap-lb.git v1.0.0 --squash
+
+      - name: PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          base: ${{ github.event.inputs.branch }}
